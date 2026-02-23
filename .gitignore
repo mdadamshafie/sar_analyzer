@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Temporary / extracted sosreport data
+tmp*/
+temp*/
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+
+# Docker volumes (data persisted locally)
+loki-data/
+influxdb-data/
+grafana-data/
+
+# Backup files
+*_backup_*.py
+*backup*.py
+
+# Secrets / tokens (never commit)
+config.py
+*.env
+.env
+
+# Grafana generated dashboards (host-specific)
+grafana_dashboard_*.json
+
+# Byte-compiled
+*.pyc
