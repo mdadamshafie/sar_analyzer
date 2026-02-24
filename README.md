@@ -47,10 +47,82 @@ Upload a `.tar.gz` / `.tar.xz` SOSreport and get instant analysis with auto-gene
 
 ## Prerequisites
 
-- **Python 3.8+**
-- **Docker Desktop** (for InfluxDB, Loki, Grafana)
+- **Python 3.8+** (only when running outside Docker)
+- **Docker Engine** — via Docker Desktop **or** WSL2 (see below)
 
-## Quick Start
+---
+
+## Quick Start — One-Command Docker Bundle (Recommended)
+
+Everything (Streamlit app + InfluxDB + Loki + Grafana) runs inside Docker.
+No Python install needed on the host.
+
+### Option A: Windows with WSL2 (no Docker Desktop required)
+
+1. **Ensure WSL2 is enabled** (one-time):
+   ```powershell
+   wsl --install          # installs Ubuntu by default
+   wsl --set-default-version 2
+   ```
+2. **Clone the repo** (in Windows or inside WSL):
+   ```bash
+   git clone https://github.com/madamshafie_microsoft/sar_analyzer.git
+   ```
+3. **Double-click `start.bat`** — or run from PowerShell:
+   ```powershell
+   .\start.ps1
+   ```
+   This will:
+   - Install Docker Engine inside WSL (if not already present)
+   - Build the Streamlit app image
+   - Start all four services
+   - Open your browser at **http://localhost:8501**
+
+### Option B: Linux / macOS (or WSL shell directly)
+
+```bash
+git clone https://github.com/madamshafie_microsoft/sar_analyzer.git
+cd sar_analyzer
+chmod +x setup.sh
+./setup.sh
+```
+
+### Option C: Already have Docker Desktop?
+
+```bash
+docker compose -f docker-compose.all.yml up --build -d
+```
+
+### Services
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **Streamlit App** | 8501 | SOSreport upload & analysis |
+| **InfluxDB** | 8086 | SAR time-series storage |
+| **Loki** | 3100 | Log aggregation |
+| **Grafana** | 3000 | Dashboards & visualization |
+
+### Common commands
+
+```bash
+# View logs
+docker compose -f docker-compose.all.yml logs -f app
+
+# Stop everything
+docker compose -f docker-compose.all.yml down
+
+# Stop + wipe all data volumes
+docker compose -f docker-compose.all.yml down -v
+
+# Rebuild after code changes
+docker compose -f docker-compose.all.yml up --build -d
+```
+
+---
+
+## Quick Start — Manual (Development)
+
+If you prefer running the Streamlit app outside Docker (hot-reload, debugging):
 
 ### 1. Clone and install
 
@@ -73,12 +145,7 @@ cp .env.example .env
 docker-compose up -d
 ```
 
-This starts:
-| Service | Port | Purpose |
-|---------|------|---------|
-| **InfluxDB** | 8086 | SAR time-series storage |
-| **Loki** | 3100 | Log aggregation |
-| **Grafana** | 3000 | Dashboards & visualization |
+This starts InfluxDB (8086), Loki (3100), and Grafana (3000).
 
 ### 4. Run the web app
 
@@ -115,8 +182,14 @@ See [.env.example](.env.example) for the template.
 |------|-------------|
 | `streamlit_app_v7.local.py` | **Main app** — local Docker version |
 | `streamlit_app_v7.py` | Remote/cloud version (Azure endpoints) |
-| `docker-compose.yml` | InfluxDB + Loki + Grafana stack |
+| `docker-compose.all.yml` | **Full bundle** — App + InfluxDB + Loki + Grafana |
+| `docker-compose.yml` | Backend only — InfluxDB + Loki + Grafana (dev mode) |
+| `Dockerfile` | Streamlit app container image |
+| `setup.sh` | WSL2 / Linux bootstrap (installs Docker, builds, starts) |
+| `start.bat` | Windows launcher (calls WSL) |
+| `start.ps1` | Windows launcher (PowerShell version) |
 | `loki-config.yaml` | Loki configuration (retention, ingestion, delete API) |
+| `grafana/provisioning/` | Auto-provisioned Grafana datasources |
 | `.env.example` | Environment variable template |
 | `requirements.txt` | Python dependencies |
 | `streamlit_app_v[1-6].py` | Legacy versions (kept for reference) |

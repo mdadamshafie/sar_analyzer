@@ -1,0 +1,21 @@
+# Auto-provisioned datasources for SOSreport Analyzer
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: sosanalyzer
+      defaultBucket: sar_metrics
+    secureJsonData:
+      token: ${INFLUXDB_TOKEN}
+    isDefault: true
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
