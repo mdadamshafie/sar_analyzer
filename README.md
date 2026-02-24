@@ -163,6 +163,7 @@ All secrets are stored in `.env` (not committed to git):
 # InfluxDB
 INFLUXDB_URL=http://localhost:8086
 INFLUXDB_TOKEN=your-influxdb-token
+INFLUXDB_ORG=sosanalyzer
 INFLUXDB_ORG_ID=your-org-id
 INFLUXDB_BUCKET=sar_metrics
 
@@ -175,6 +176,60 @@ GRAFANA_API_KEY=your-grafana-api-key
 ```
 
 See [.env.example](.env.example) for the template.
+
+> **Note:** If you used the Docker bundle (`docker-compose.all.yml`), the token, org, and bucket are pre-configured automatically — you only need the steps below if you changed the defaults or are running a standalone InfluxDB/Grafana.
+
+### How to get the InfluxDB Token
+
+1. Open InfluxDB UI: **http://localhost:8086**
+2. Log in with `admin` / `sosreport2026` (the default from docker-compose)
+3. Go to **Load Data → API Tokens** (left sidebar → the upward arrow icon)
+4. You will see a token named **admin's Token** — click on it to reveal the full token string
+5. Copy the token and paste it into your `.env` as `INFLUXDB_TOKEN`
+
+> The Docker bundle auto-creates the token `local-sosreport-token-2026`. If you haven't changed anything, use that value.
+
+### How to get the InfluxDB Org ID
+
+1. Open InfluxDB UI: **http://localhost:8086**
+2. Log in, then click your **user avatar** (bottom-left corner) → **About**
+3. The **Organization ID** is displayed (a 16-character hex string like `9cc27eb671d7c96a`)
+4. Copy it into your `.env` as `INFLUXDB_ORG_ID`
+
+Alternatively, use the API:
+```bash
+curl -s http://localhost:8086/api/v2/orgs \
+  -H "Authorization: Token local-sosreport-token-2026" \
+  | python -m json.tool
+```
+Look for the `"id"` field in the response.
+
+### How to get the InfluxDB Bucket
+
+1. Open InfluxDB UI: **http://localhost:8086**
+2. Go to **Load Data → Buckets**
+3. The default bucket created by docker-compose is `sar_metrics`
+4. Use this name as `INFLUXDB_BUCKET` in your `.env`
+
+> You can create a custom bucket here if needed — just update the `.env` to match.
+
+### How to get the Grafana API Key
+
+1. Open Grafana: **http://localhost:3000**
+2. Log in with `admin` / `sosreport2026`
+3. Go to **Administration → Service Accounts** (left sidebar → gear icon → Service Accounts)
+4. Click **Add service account**
+   - Name: `sosreport-analyzer`
+   - Role: **Admin**
+5. Click **Create**
+6. On the service account page, click **Add service account token**
+   - Name: `sar-token`
+   - Expiration: set as desired (or **No expiration**)
+7. Click **Generate token**
+8. **Copy the token immediately** (it starts with `glsa_...`) — it won't be shown again
+9. Paste it into your `.env` as `GRAFANA_API_KEY`
+
+> The API key is needed for auto-creating dashboards. Without it, the app still works for SAR/log analysis — you just won't get auto-generated Grafana dashboards.
 
 ## Files
 
